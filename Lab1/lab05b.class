@@ -1,0 +1,84 @@
+ .data 
+
+array: .space 80 # max 20 element
+out1: .asciiz "Write an integer : "
+out3: .asciiz "the numbers with normal given order : "
+out2: .asciiz "\n the numbers going to reverse order  : "
+arrayNumber: .asciiz "please write element number : "  
+bosluk: .asciiz " "  
+
+
+.text
+#integer sayısı girme
+li $v0,4
+la $a0,arrayNumber
+syscall
+#numarayı alma
+li $v0,5
+syscall
+
+
+move $s0,$v0  #array size belirleme
+#1 e düşürme
+subi $s0,$s0,1 
+
+mul $t7,$s0,4  #son indexi alma
+
+in:
+#integer istek
+li $v0,4 #mesaj bastırma syscall hazırlıgı
+la $a0,out1 #input almak  için mesaj bastırma
+syscall
+#integer alma
+li $v0,5 #integer alma syscallu
+syscall
+#loop bitene kadar okuma
+add $t1,$t0,$zero
+sll $t1,$t0,2
+add $t3,$v0,$zero
+#integerları array de saklama
+sw $t3,array ( $t1 )
+addi $t0,$t0,1
+slt $t1,$s0,$t0
+beq $t1,$zero,in
+
+#sayıları düzgün sırayla gösterme
+li $v0,4
+la $a0,out3
+syscall
+
+li $t0,0  # size 10 oluncaya kadar
+
+print:
+lw $s1,array ( $t0 )
+move $a0,$s1
+li $v0,1
+syscall
+li $v0,4
+la $a0,bosluk
+syscall
+addi $t0,$t0,4
+slt $t1,$t7,$t0
+beq $t1,$zero,print
+
+
+#reverse edilmiş halde gösterme
+li $v0,4
+la $a0,out2
+syscall
+
+
+move $t0,$t7
+
+#döngü kısmı
+dongu:
+lw $s1,array ( $t0 )
+move $a0,$s1
+li $v0,1
+syscall
+li $v0,4
+la $a0,bosluk
+syscall
+sub $t0,$t0,4
+#döngünün sonuna gelene kadar döndürme
+bgez $t0,dongu
